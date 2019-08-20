@@ -1,0 +1,47 @@
+# serverless.yml
+
+service: WhosOnCall
+
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./bin/**
+
+custom:
+  secrets: ${ssm:/aws/reference/secretsmanager/dev/whosoncall~true}
+
+provider:
+  name: aws
+  runtime: go1.x
+  memorySize: 128
+  apiKeys:
+    # https://serverless.com/framework/docs/providers/aws/events/apigateway/#setting-api-keys-for-your-rest-api
+    - testKey
+  usagePlan:
+    quota:
+      limit: 500
+      offset: 2
+      period: MONTH
+    throttle:
+      burstLimit: 20
+      rateLimit: 10
+
+
+functions:
+  whosoncall:
+    handler: bin/whos-on-call
+    environment:
+      PAGERDUTY_API_TOKEN: ${self:custom.secrets.APIKey}
+    events:
+      - http:
+          path: whos-on-call
+          method: get
+          # integration: lambda
+          private: true
+          # cors: false
+          # request:
+          #   parameters:
+          #     querystrings:
+          #       schedule: true
