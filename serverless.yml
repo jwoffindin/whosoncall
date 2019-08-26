@@ -1,7 +1,6 @@
-# serverless.yml
-
+# Deploy lambda behind API gateway that returns current on-call user for
+# given PagerDuty schedule.
 service: WhosOnCall
-
 
 package:
  exclude:
@@ -10,7 +9,7 @@ package:
    - ./bin/**
 
 custom:
-  secrets: ${ssm:/aws/reference/secretsmanager/dev/whosoncall~true}
+  secretName: ${file(config.${opt:stage, 'dev'}.json):secret-name}
 
 provider:
   name: aws
@@ -28,12 +27,16 @@ provider:
       burstLimit: 20
       rateLimit: 10
 
+  iamRoleStatements:
+    - Effect: Allow
+      Action: secretsmanager:GetSecretValue
+      Resource: 'arn:aws:secretsmanager:#{AWS::Region}:#{AWS::AccountId}:secret:${self:provider.stage}/${self:custom.secretName}'
 
 functions:
   whosoncall:
     handler: bin/whos-on-call
     environment:
-      PAGERDUTY_API_TOKEN: ${self:custom.secrets.APIKey}
+      PAGERDUTY_API_TOKEN: 'arn:aws:secretsmanager:#{AWS::Region}:#{AWS::AccountId}:secret:${self:provider.stage}/${self:custom.secretName}'
     events:
       - http:
           path: whos-on-call
@@ -45,3 +48,5 @@ functions:
           #   parameters:
           #     querystrings:
           #       schedule: true
+plugins:
+  - serverless-pseudo-parameters

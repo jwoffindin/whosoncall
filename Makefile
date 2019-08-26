@@ -28,4 +28,4 @@ else
 endif
 
 bin/whos-on-call: main.go
-	env GOOS=linux go build -mod=vendor -ldflags="-s -w" -o $@ main.go
+	env GOOS=linux go build -mod=vendor -ldflags="-s -w" -o $@ *.go

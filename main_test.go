@@ -2,14 +2,17 @@ package main
 
 import (
 	"testing"
+
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHandler(t *testing.T) {
-	// assert := require.New(t)
+	assert := require.New(t)
 
-	// request := events.APIGatewayProxyRequest{PathParameters: map[string]string{"schedule": "P538IZH"}}
+	l := logrus.NewEntry(logrus.StandardLogger())
 
-	// response, err := HandlerWithLogging(request)
-	// assert.NoError(err)
-	// assert.Equal(200, response.StatusCode)
+	oncall, err := whosOnCall(l, "P538IZH")
+	assert.NoError(err)
+	assert.Equal(&onCallUserResponse{}, oncall)
 }
