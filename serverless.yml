@@ -10,14 +10,15 @@ package:
 
 custom:
   secretName: ${file(config.${opt:stage, 'dev'}.json):secret-name}
+  apiKeys: ${file(config.${opt:stage, 'dev'}.json):api-keys}
 
 provider:
   name: aws
   runtime: go1.x
   memorySize: 128
-  apiKeys:
-    # https://serverless.com/framework/docs/providers/aws/events/apigateway/#setting-api-keys-for-your-rest-api
-    - testKey
+  apiKeys: ${self:custom.apiKeys}
+  logs:
+    restApi: true
   usagePlan:
     quota:
       limit: 500
@@ -41,12 +42,6 @@ functions:
       - http:
           path: whos-on-call
           method: get
-          # integration: lambda
           private: true
-          # cors: false
-          # request:
-          #   parameters:
-          #     querystrings:
-          #       schedule: true
 plugins:
   - serverless-pseudo-parameters

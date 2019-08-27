@@ -1,3 +1,7 @@
 {
-  "secret-name": "whosoncall-2u3WKD"
+  "secret-name": "whosoncall-2u3WKD",
+  "api-keys": [
+    "testKey",
+    "testClient2"
+  ]
 }
